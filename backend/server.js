@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const db = require('./config/db.js');
+const documentRoute = require('./routes/document');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -22,6 +23,8 @@ const port = process.env.PORT || 3000
 app.listen(port, () => {
     console.log('Connected at : ' + port);
 });
+
+app.use('/api/document', documentRoute)
 
 app.use(function (err, req, res, next) {
     console.error(err.message);
