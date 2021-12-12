@@ -40,28 +40,41 @@ route.get('/', (req, res) => {
 
 route.get('/:id', (req, res) => {
     Document.findById(req.params.id)
-        .then(data => res.send(data))
+        .then(data => {
+            if (!data) {
+                res.send('document dont exist')
+            }
+            res.send(data)
+        })
         .catch(err => res.send(err.message));
 });
 
-route.put('/update/:id', (req, res) => {
+route.put('/update/:id', upload.single('doc'), (req, res) => {
+    console.log(req.body)
+    console.log(req.file)
     const document = {
         fullName: req.body.fullName,
         description: req.body.description,
         date: new Date(),
-        doc: req.body.doc
+        doc: req.file.filename
     };
 
     Document.findByIdAndUpdate(req.params.id, document)
-        .then(data => res.send(data))
+        .then(({ doc }) => {
+            fs.unlink('storage/' + doc, (err) => {
+                if (err) throw err;
+                console.log('file deleted!');
+            })
+            res.send('updated')
+        })
         .catch(err => res.send(err.message));
 });
 
 route.delete('/delete/:id', (req, res) => {
 
     Document.findByIdAndRemove(req.params.id)
-        .then((data) => {
-            fs.unlink('storage/' + data.doc, (err) => {
+        .then(({ doc }) => {
+            fs.unlink('storage/' + doc, (err) => {
                 if (err) throw err;
                 console.log('file deleted!');
             })
