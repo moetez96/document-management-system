@@ -3,7 +3,6 @@ const route = express.Router();
 const Document = require('../models/document');
 const multer = require('multer');
 const fs = require('fs')
-const { resolve } = require('path')
 
 const fileStorageEngine = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -50,32 +49,46 @@ route.get('/:id', (req, res) => {
 });
 
 route.put('/update/:id', upload.single('doc'), (req, res) => {
-
-    const document = {
-        fullName: req.body.fullName,
-        description: req.body.description,
-        date: new Date(),
-        doc: req.file.filename
-    };
-
-    Document.findByIdAndUpdate(req.params.id, document)
-        .then((data) => {
+    Document.findById(req.params.id)
+        .then(data => {
+            var document = {};
             if (!data) {
                 res.send('document dont exist')
-                fs.unlink('storage/' + req.file.filename, (err) => {
-                    if (err) throw err;
-                    console.log('file updated!');
-                })
             }
-
-            fs.unlink('storage/' + data.doc, (err) => {
-                if (err) throw err;
+            if (!req.file) {
+                document = {
+                    fullName: req.body.fullName,
+                    description: req.body.description,
+                    date: new Date(),
+                    doc: data.doc
+                }
+            } else {
+                document = {
+                    fullName: req.body.fullName,
+                    description: req.body.description,
+                    date: new Date(),
+                    doc: req.file.filename
+                }
+            }
+            Document.updateOne({ _id: req.params.id }, document).then(() => {
+                if (req.file) {
+                    fs.unlink('storage/' + req.file.filename, (err) => {
+                        if (err) throw err;
+                    })
+                }
                 console.log('file updated!');
             })
-
-            res.send('updated')
+            res.send({ message: 'updated' })
         })
-        .catch(err => res.send(err.message));
+        .catch(err => {
+            console.log('here')
+            if (req.file) {
+                fs.unlink('storage/' + req.file.filename, (err) => {
+                    if (err) throw err;
+                })
+            }
+            res.send(err)
+        })
 });
 
 route.delete('/delete/:id', (req, res) => {
@@ -85,12 +98,14 @@ route.delete('/delete/:id', (req, res) => {
             if (!data) {
                 res.send('document dont exist')
             }
-
-            fs.unlink('storage/' + data.doc, (err) => {
-                if (err) throw err;
-                console.log('file deleted!');
-            })
-            res.send("deleted")
+            if (fs.existsSync('storage/' + data.doc)) {
+                fs.unlink('storage/' + data.doc, (err) => {
+                    if (err) throw err;
+                    console.log('file deleted!');
+                })
+            }
+            console.log("deleted")
+            res.send({ message: "deleted" })
         })
         .catch(err => res.send(err.message));
 
