@@ -50,8 +50,7 @@ route.get('/:id', (req, res) => {
 });
 
 route.put('/update/:id', upload.single('doc'), (req, res) => {
-    console.log(req.body)
-    console.log(req.file)
+
     const document = {
         fullName: req.body.fullName,
         description: req.body.description,
@@ -60,11 +59,20 @@ route.put('/update/:id', upload.single('doc'), (req, res) => {
     };
 
     Document.findByIdAndUpdate(req.params.id, document)
-        .then(({ doc }) => {
-            fs.unlink('storage/' + doc, (err) => {
+        .then((data) => {
+            if (!data) {
+                res.send('document dont exist')
+                fs.unlink('storage/' + req.file.filename, (err) => {
+                    if (err) throw err;
+                    console.log('file updated!');
+                })
+            }
+
+            fs.unlink('storage/' + data.doc, (err) => {
                 if (err) throw err;
-                console.log('file deleted!');
+                console.log('file updated!');
             })
+
             res.send('updated')
         })
         .catch(err => res.send(err.message));
@@ -73,8 +81,12 @@ route.put('/update/:id', upload.single('doc'), (req, res) => {
 route.delete('/delete/:id', (req, res) => {
 
     Document.findByIdAndRemove(req.params.id)
-        .then(({ doc }) => {
-            fs.unlink('storage/' + doc, (err) => {
+        .then((data) => {
+            if (!data) {
+                res.send('document dont exist')
+            }
+
+            fs.unlink('storage/' + data.doc, (err) => {
                 if (err) throw err;
                 console.log('file deleted!');
             })
