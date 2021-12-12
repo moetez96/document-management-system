@@ -23,6 +23,10 @@ export class DocumentListComponent implements OnInit {
     })
   }
 
+  date(date: any) {
+    return (date.substring(0, 10) + " " + date.substring(11, 19))
+  }
+
   removeDocument(document: any, index: Number) {
     if (window.confirm('Are you sure?')) {
       this.apiService.deleteDocument(document._id).subscribe((data) => {
