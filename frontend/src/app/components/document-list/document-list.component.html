@@ -18,7 +18,8 @@
         <td>{{document.fullName}}</td>
         <td>{{document.description}}</td>
         <td>{{date(document.date)}}</td>
-        <td>{{document.doc}}</td>
+        <td>{{document.doc}} <button (click)="getfile(document.doc)">Download</button>
+        </td>
         <td class="text-center edit-block">
           <span class="edit" [routerLink]="['/edit-document/', document._id]">
             <button type="button" class="btn btn-success btn-sm">Edit</button>

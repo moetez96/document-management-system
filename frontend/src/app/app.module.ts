@@ -9,6 +9,7 @@ import { DocumentEditComponent } from './components/document-edit/document-edit.
 import { DocumentListComponent } from './components/document-list/document-list.component';
 import { ApiService } from './services/api.service';
 import { HttpClientModule } from '@angular/common/http';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { HttpClientModule } from '@angular/common/http';
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    NgbModule
   ],
   providers: [ApiService],
   bootstrap: [AppComponent]

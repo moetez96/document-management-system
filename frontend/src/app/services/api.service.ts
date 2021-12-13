@@ -20,7 +20,9 @@ export class ApiService {
         catchError(this.errorMgmt)
       )
   }
-
+  getFile(fileName: any) {
+    return this.http.post(this.baseUri + "getFile", { file: fileName }, { responseType: "blob" });
+  }
   getDocuments() {
     return this.http.get(this.baseUri);
   }

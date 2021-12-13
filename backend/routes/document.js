@@ -15,6 +15,13 @@ const fileStorageEngine = multer.diskStorage({
 
 const upload = multer({ storage: fileStorageEngine });
 
+route.post('/getFile', (req, res, next) => {
+    res.download('./storage/' + req.body.file, req.body.file, (err) => {
+        if (err) {
+            next(err);
+        }
+    })
+})
 route.post('/create', upload.single('doc'), (req, res) => {
     console.log(req.file)
     var document = new Document({
@@ -49,39 +56,42 @@ route.get('/:id', (req, res) => {
 });
 
 route.put('/update/:id', upload.single('doc'), (req, res) => {
-    Document.findById(req.params.id)
-        .then(data => {
-            var document = {};
+    var document = {};
+
+    if (!req.file) {
+        document = {
+            fullName: req.body.fullName,
+            description: req.body.description,
+            date: new Date(),
+        }
+    } else {
+        document = {
+            fullName: req.body.fullName,
+            description: req.body.description,
+            date: new Date(),
+            doc: req.file.filename
+        }
+    }
+
+    Document.findByIdAndUpdate(req.params.id, document)
+        .then((data) => {
             if (!data) {
-                res.send('document dont exist')
-            }
-            if (!req.file) {
-                document = {
-                    fullName: req.body.fullName,
-                    description: req.body.description,
-                    date: new Date(),
-                    doc: data.doc
-                }
-            } else {
-                document = {
-                    fullName: req.body.fullName,
-                    description: req.body.description,
-                    date: new Date(),
-                    doc: req.file.filename
-                }
-            }
-            Document.updateOne({ _id: req.params.id }, document).then(() => {
                 if (req.file) {
                     fs.unlink('storage/' + req.file.filename, (err) => {
                         if (err) throw err;
                     })
                 }
-                console.log('file updated!');
-            })
+                res.send('document dont exist')
+            } else {
+                if (req.file) {
+                    fs.unlink('storage/' + data.doc, (err) => {
+                        if (err) throw err;
+                    })
+                    console.log('file updated!');
+                }
+            }
             res.send({ message: 'updated' })
-        })
-        .catch(err => {
-            console.log('here')
+        }).catch(err => {
             if (req.file) {
                 fs.unlink('storage/' + req.file.filename, (err) => {
                     if (err) throw err;
