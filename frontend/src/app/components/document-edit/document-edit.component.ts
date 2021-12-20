@@ -55,26 +55,21 @@ export class DocumentEditComponent implements OnInit {
   onSubmit() {
 
     this.submitted = true;
-    if (!this.editForm.valid && this.fileToUpload != null) {
-      return false;
-    } else {
-      if (window.confirm('Are you sure?')) {
-        const formData = new FormData();
-        formData.append('fullName', this.editForm.value.fullName);
-        formData.append('description', this.editForm.value.description);
-        formData.append('doc', this.fileToUpload!);
+    if (this.editForm.valid) {
+      const formData = new FormData();
+      formData.append('fullName', this.editForm.value.fullName);
+      formData.append('description', this.editForm.value.description);
+      formData.append('doc', this.fileToUpload!);
 
-        let id = this.actRoute.snapshot.paramMap.get('id');
-        this.apiService.updateDocument(id, formData).subscribe(
-          (res) => {
-            let id = this.actRoute.snapshot.paramMap.get('id');
-            console.log('Document successfully created!')
-            this.router.navigateByUrl('/documents-list');
-          }, (error) => {
-            console.log(error);
-          });
-      }
-      return true
+      let id = this.actRoute.snapshot.paramMap.get('id');
+      this.apiService.updateDocument(id, formData).subscribe(
+        (res) => {
+          let id = this.actRoute.snapshot.paramMap.get('id');
+          console.log('Document successfully created!')
+          this.router.navigateByUrl('/documents-list');
+        }, (error) => {
+          console.log(error);
+        });
     }
   }
 }

@@ -2,18 +2,20 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  baseUri: string = 'http://localhost:3000/api/document/';
+
+  baseUri: string = environment.baseUri
   headers = new HttpHeaders().set('Content-Type', 'application/json');
 
   constructor(private http: HttpClient) { }
 
   createDocument(data: any): Observable<any> {
-    let url = this.baseUri + 'create';
+    let url = this.baseUri + '/api/document/create';
 
     return this.http.post(url, data)
       .pipe(
@@ -21,14 +23,15 @@ export class ApiService {
       )
   }
   getFile(fileName: any) {
-    return this.http.post(this.baseUri + "getFile", { file: fileName }, { responseType: "blob" });
+    let url = this.baseUri + "/api/document/getFile";
+    return this.http.post(url, { file: fileName }, { responseType: "blob" });
   }
   getDocuments() {
-    return this.http.get(this.baseUri);
+    return this.http.get(this.baseUri + "/api/document/");
   }
 
   getDocument(id: any): Observable<any> {
-    let url = this.baseUri + id;
+    let url = this.baseUri + "/api/document/" + id;
     return this.http.get(url, { headers: this.headers }).pipe(
       map((res: any) => {
         return res || {}
@@ -38,14 +41,14 @@ export class ApiService {
   }
 
   updateDocument(id: any, data: any): Observable<any> {
-    let url = this.baseUri + 'update/' + id;
+    let url = this.baseUri + '/api/document/update/' + id;
     return this.http.put(url, data).pipe(
       catchError(this.errorMgmt)
     )
   }
 
   deleteDocument(id: any): Observable<any> {
-    let url = this.baseUri + 'delete/' + id;
+    let url = this.baseUri + '/api/document/delete/' + id;
     return this.http.delete(url, { headers: this.headers }).pipe(
       catchError(this.errorMgmt)
     )

@@ -10,6 +10,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
+
 mongoose.Promise = global.Promise;
 mongoose.connect(db.url, { useNewUrlParser: true })
     .then(() => {
@@ -18,6 +19,13 @@ mongoose.connect(db.url, { useNewUrlParser: true })
         console.log(err.message);
     });
 
+
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static('../frontend/dist/frontend'));
+    app.use('/', (req, res) => {
+        res.sendFile(path.join(path.resolve('../frontend/dist/frontend/index.html')))
+    })
+}
 const port = process.env.PORT || 3000
 app.listen(port, () => {
     console.log('Connected at : ' + port);

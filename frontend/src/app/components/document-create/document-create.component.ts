@@ -21,6 +21,10 @@ export class DocumentCreateComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.documentForm = this.fb.group({
+      fullName: ['', [Validators.required]],
+      description: ['', [Validators.required]],
+    })
   }
 
   get myForm() {
@@ -35,12 +39,8 @@ export class DocumentCreateComponent implements OnInit {
     }
   }
   onSubmit() {
-
     this.submitted = true;
-    if (!this.documentForm.valid && this.fileToUpload != null) {
-      return false;
-    } else {
-
+    if (this.documentForm.valid && this.fileToUpload != null) {
       const formData = new FormData();
       formData.append('fullName', this.documentForm.value.fullName);
       formData.append('description', this.documentForm.value.description);
@@ -53,7 +53,6 @@ export class DocumentCreateComponent implements OnInit {
         }, (error) => {
           console.log(error);
         });
-      return true
     }
   }
 }
